@@ -106,6 +106,49 @@ app.delete('/user/:id', (req, res) => {
     .catch(e => res.status(400).send(e))
 })
 
+app.patch('/todos/:id', (req, res) => {
+  var id = req.params.id
+  var body = _.pick(req.body, ['text', 'completed'])
+
+  if (!ObjectID.isValid(id)) {
+    return res.status(404).send('Invalid ID')
+  }
+
+  if (_.isBoolean(body.completed) && body.completed) {
+    body.completedAt = new Date().getTime()
+  } else {
+    body.completed = false
+    body.completedAt = null
+  }
+
+  Todo.findByIdAndUpdate(id, { $set: body }, { new: true })
+    .then(result => {
+      if (!result) {
+        return res.status(404).send('Id is not exist')
+      }
+      res.send({ result })
+    })
+    .catch(e => res.status(400).send(e))
+})
+
+app.patch('/user/:id', (req, res) => {
+  var id = req.params.id
+  var body = _.pick(req.body, ['email'])
+
+  if (!ObjectID.isValid(id)) {
+    return res.status(404).send('Invalid ID')
+  }
+
+  User.findByIdAndUpdate(id, { $set: body }, { new: true })
+    .then(result => {
+      if (!result) {
+        return res.status(404).send('Id is not exist')
+      }
+      res.send({ result })
+    })
+    .catch(e => res.status(400).send(e))
+})
+
 app.listen(port, () => {
   console.log(`Started up at port ${port}`)
 })
